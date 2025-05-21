@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BIN Generator</title>
+  <link rel="icon" href="https://img.icons8.com/color/96/bank-card-back-side.png" type="image/png" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      transition: background 0.3s, color 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+    body.dark {
+      background: #1e1e1e;
+      color: #e0e0e0;
+    }
+    .top-bar {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 10px 20px 0 20px;
+    }
+    .dark-toggle, .translate-toggle {
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .dark-toggle:hover, .translate-toggle:hover {
+      background: #555;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+      margin: 20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark .container {
+      background: #2c2c2c;
+      color: #e0e0e0;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .logo {
+      width: 40px;
+      height: 40px;
+      transition: transform 0.3s ease;
+    }
+    .logo:hover {
+      transform: rotate(10deg) scale(1.1);
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background: #fff;
+      color: #000;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark input, body.dark select, body.dark textarea {
+      background: #444;
+      color: #fff;
+      border: 1px solid #666;
+    }
+    textarea {
+      height: 200px;
+      resize: vertical;
+      font-family: monospace;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-bottom: 10px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin: 20px 0;
+    }
+    body.dark .footer {
+      color: #aaa;
+    }
+    .chat-telegram {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999;
+      background-color: #0088cc;
+      border-radius: 50%;
+      padding: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease;
+    }
+    .chat-telegram:hover {
+      transform: scale(1.1);
+    }
+    .chat-telegram img {
+      width: 32px;
+      height: 32px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button class="translate-toggle" onclick="toggleLanguage()">Translate</button>
+    <button class="dark-toggle" onclick="toggleDarkMode()">Dark Mode</button>
+  </div>
+
+  <div class="container">
+    <h2><img src="https://img.icons8.com/color/96/bank-card-back-side.png" alt="Logo" class="logo" /> <span id="title">BIN Generator</span></h2>
+    <input type="text" id="bin" placeholder="Masukkan BIN (1–16 digit)" maxlength="16" />
+    <input type="number" id="jumlah" placeholder="Jumlah Generate" min="1" max="100" value="10" />
+    <select id="cvvLength">
+      <option value="3">CVV 3 digit</option>
+      <option value="4">CVV 4 digit</option>
+    </select>
+    <select id="tahun">
+      <option value="2">2 Tahun dari Sekarang</option>
+      <option value="5" selected>5 Tahun dari Sekarang</option>
+      <option value="10">10 Tahun dari Sekarang</option>
+    </select>
+    <button onclick="generate()">Generate</button>
+    <textarea id="output" placeholder="Hasil akan muncul di sini..."></textarea>
+    <button onclick="copyToClipboard()">Copy</button>
+    <button onclick="resetAll()">Reset</button>
+  </div>
+
+  <div class="footer">&copy; <span id="year"></span> BIN Generator</div>
+
+  <a href="https://t.me/BLCKMNN404" target="_blank" class="chat-telegram" title="Chat Admin via Telegram">
+    <img src="https://img.icons8.com/color/48/telegram-app--v1.png" alt="Telegram Icon" />
+  </a>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    let currentLang = 'id';
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+    }
+
+    function toggleLanguage() {
+      const text = {
+        id: {
+          title: 'BIN Generator',
+          bin: 'Masukkan BIN (1–16 digit)',
+          jumlah: 'Jumlah Generate',
+          cvv3: 'CVV 3 digit',
+          cvv4: 'CVV 4 digit',
+          tahun2: '2 Tahun dari Sekarang',
+          tahun5: '5 Tahun dari Sekarang',
+          tahun10: '10 Tahun dari Sekarang',
+          gen: 'Generate',
+          copy: 'Copy',
+          reset: 'Reset',
+          hasil: 'Hasil akan muncul di sini...',
+          copyAlert: 'Disalin ke clipboard!'
+        },
+        en: {
+          title: 'BIN Generator',
+          bin: 'Enter BIN (1–16 digits)',
+          jumlah: 'Quantity to Generate',
+          cvv3: 'CVV 3 digits',
+          cvv4: 'CVV 4 digits',
+          tahun2: '2 Years from Now',
+          tahun5: '5 Years from Now',
+          tahun10: '10 Years from Now',
+          gen: 'Generate',
+          copy: 'Copy',
+          reset: 'Reset',
+          hasil: 'Results will appear here...',
+          copyAlert: 'Copied to clipboard!'
+        }
+      };
+
+      const lang = currentLang === 'id' ? 'en' : 'id';
+      currentLang = lang;
+      const t = text[lang];
+
+      document.getElementById('title').textContent = t.title;
+      document.getElementById('bin').placeholder = t.bin;
+      document.getElementById('jumlah').placeholder = t.jumlah;
+      document.getElementById('cvvLength').options[0].text = t.cvv3;
+      document.getElementById('cvvLength').options[1].text = t.cvv4;
+      document.getElementById('tahun').options[0].text = t.tahun2;
+      document.getElementById('tahun').options[1].text = t.tahun5;
+      document.getElementById('tahun').options[2].text = t.tahun10;
+      document.querySelectorAll('button')[2].textContent = t.gen;
+      document.querySelectorAll('button')[3].textContent = t.copy;
+      document.querySelectorAll('button')[4].textContent = t.reset;
+      document.getElementById('output').placeholder = t.hasil;
+      window.copyMessage = t.copyAlert;
+    }
+
+    window.copyMessage = 'Disalin ke clipboard!';
+
+    function luhnChecksum(cardNumber) {
+      let sum = 0, shouldDouble = false;
+      for (let i = cardNumber.length - 1; i >= 0; i--) {
+        let digit = parseInt(cardNumber[i]);
+        if (shouldDouble) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+        shouldDouble = !shouldDouble;
+      }
+      return sum % 10 === 0;
+    }
+
+    function generateCardNumber(bin) {
+      let number = bin.slice(0, 16);
+      while (number.length < 15) {
+        number += Math.floor(Math.random() * 10).toString();
+      }
+
+      for (let i = 0; i < 10; i++) {
+        let testNumber = number + i.toString();
+        if (luhnChecksum(testNumber)) return testNumber;
+      }
+      return null;
+    }
+
+    function getRandomDate(yearsAhead) {
+      const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+      const year = String(new Date().getFullYear() + Math.floor(Math.random() * yearsAhead)).slice(2);
+      return { month, year };
+    }
+
+    function getRandomCVV(length) {
+      const min = Math.pow(10, length - 1);
+      const max = Math.pow(10, length) - 1;
+      return String(Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+
+    function generate() {
+      const bin = document.getElementById("bin").value;
+      const jumlah = parseInt(document.getElementById("jumlah").value);
+      const tahun = parseInt(document.getElementById("tahun").value);
+      const cvvLen = parseInt(document.getElementById("cvvLength").value);
+      const output = document.getElementById("output");
+      output.value = "";
+
+      if (!/^\d{1,16}$/.test(bin)) {
+        alert("BIN harus terdiri dari 1 sampai 16 digit angka.");
+        return;
+      }
+
+      let results = [];
+      for (let i = 0; i < jumlah; i++) {
+        const card = generateCardNumber(bin);
+        const { month, year } = getRandomDate(tahun);
+        const cvv = getRandomCVV(cvvLen);
+        results.push(`${card}|${month}|${year}|${cvv}`);
+      }
+
+      output.value = results.join('\n');
+    }
+
+    function copyToClipboard() {
+      const output = document.getElementById("output");
+      output.select();
+      output.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert(window.copyMessage);
+    }
+
+    function resetAll() {
+      document.getElementById("bin").value = "";
+      document.getElementById("jumlah").value = 10;
+      document.getElementById("cvvLength").value = "3";
+      document.getElementById("tahun").value = "5";
+      document.getElementById("output").value = "";
+    }
+  </script>
+</body>
+</html>
